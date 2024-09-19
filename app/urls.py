@@ -5,10 +5,14 @@ from app.views.joinView import JoinView
 from app.views.loginRefreshView import LoginRefreshView
 from app.views.loginView import LoginView
 from app.views.myInfoView import MyInfoView
+from app.views.reservationViewSet import ReservationViewSet
 from app.views.userViewSet import UserViewSet
 
 user_router = ExtendedDefaultRouter(trailing_slash=False)
 user_router.register(r'users', UserViewSet)
+
+reservation_router = ExtendedDefaultRouter(trailing_slash=False)
+reservation_router.register(r'reservations', ReservationViewSet)
 
 urlpatterns = [
     path('login', LoginView.as_view(), name='token_obtain_pair'),
@@ -18,4 +22,7 @@ urlpatterns = [
 
     # users
     path('', include(user_router.urls)),
+
+    # reservations
+    path('', include(reservation_router.urls)),
 ]
