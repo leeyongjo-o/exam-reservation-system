@@ -26,5 +26,18 @@ services:
       - 5432:5432
     volumes:
       - 'postgres:/var/lib/postgresql/data'
+  sql-runner:
+    image: postgres:15.8
+    volumes:
+      - .:/code
+    container_name: postgres_init
+    command: >
+      bash -c "
+      chmod +x /code/wait-for-it.sh /code/_db/init.sql
+      && /code/wait-for-it.sh web:8000
+      && PGPASSWORD='user123' psql -U user -h postgres -d app -f /code/_db/init.sql"
+    depends_on:
+      - db
+      - web
 volumes:
     postgres:
