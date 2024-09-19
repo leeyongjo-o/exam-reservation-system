@@ -5,6 +5,7 @@ from drf_spectacular.views import SpectacularSwaggerView, SpectacularJSONAPIView
 from config.views import HealthCheckView
 
 urlpatterns = [
+    path('', include('app.urls')),
     path('admin/', admin.site.urls),
 
     # api docs
@@ -16,5 +17,5 @@ urlpatterns = [
     path('ping', HealthCheckView.as_view(), name='health_check'),
 
     # test page auth
-    path('api-auth', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
