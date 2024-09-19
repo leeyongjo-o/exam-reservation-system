@@ -1,5 +1,7 @@
 from collections import defaultdict
+from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -27,6 +29,10 @@ class ReservationSerializer(serializers.ModelSerializer):
         if participants > Reservation.MAX_PARTICIPANTS:
             raise ValidationError({'participants': f'응시 인원은 최대 {Reservation.MAX_PARTICIPANTS}명까지 가능합니다.'})
 
+        # 시작일시, 종료일시 검증
+        if start_date > end_date:
+            raise ValidationError({'end_date': f'종료일시는 시작일시보다 빠를 수 없습니다.'})
+
         # 예약 시간과 응시 인원 검증
         reservations = Reservation.objects.filter(
             Q(status=ReservationStatus.CONFIRMED),
@@ -51,6 +57,14 @@ class ReservationSerializer(serializers.ModelSerializer):
             else:
                 raise ValidationError({'participants': f'해당 시간대에 {min_participants}명 이하까지만 예약 가능합니다.'})
         return super().validate(attrs)
+
+    def create(self, validated_data):
+        # 시험 시작 3일 전까지만 신청 가능
+        date_format = settings.REST_FRAMEWORK['DATETIME_FORMAT']
+        if datetime.strptime(validated_data.get('start_date'), date_format) \
+                < datetime.now() + timedelta(days=Reservation.MAX_DIFF_DAYS_START_DATE_FROM_NOW):
+            raise ValidationError({'start_date': f'시험 시작 3일 전까지 신청 가능합니다.'})
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):
         # 확정된 건은 수정 불가

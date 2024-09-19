@@ -13,6 +13,7 @@ class Reservation(models.Model):
     id = models.BigAutoField('예약 고유번호', primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservations')
 
+    MAX_DIFF_DAYS_START_DATE_FROM_NOW = 3  # days
     start_date = models.DateTimeField('시험 시작일시')
     end_date = models.DateTimeField('시험 종료일시')
 
