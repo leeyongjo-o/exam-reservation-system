@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator
 from django.db import models
 
 from app.models import User
@@ -14,7 +15,11 @@ class Reservation(models.Model):
 
     start_date = models.DateTimeField('시험 시작일시')
     end_date = models.DateTimeField('시험 종료일시')
-    participants = models.PositiveIntegerField('응시인원')
+
+    MAX_PARTICIPANTS = 50_000
+    participants = models.PositiveIntegerField('응시인원',
+                                               validators=[MaxValueValidator(MAX_PARTICIPANTS)])
+
     status = models.IntegerField('예약 상태', choices=ReservationStatus.choices, default=ReservationStatus.WAITING)
 
     created_at = models.DateTimeField('등록일시', auto_now_add=True)
@@ -27,5 +32,3 @@ class Reservation(models.Model):
             models.Index(fields=['created_at']),
             models.Index(fields=['updated_at']),
         )
-
-    MAX_PARTICIPANTS = 50_000
